@@ -1,17 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Weather.Data;
 
 namespace Weather
 {
@@ -23,6 +14,25 @@ namespace Weather
         public MainWindow()
         {
             InitializeComponent();
+        }
+        private void NotesListDG_Loaded(object sender, RoutedEventArgs e)
+        {
+            var formattedNotes = new List<string>();
+            string? connectionString = AppConfiguration.Configuration.GetConnectionString("MySqlConnection");
+            // Configure the DBContext with the connection string
+            var optionsBuilder = new DbContextOptionsBuilder<NotesDbContext>();
+            if (connectionString != null)
+            {
+                // Load the formatted notes from the database
+                optionsBuilder.UseMySQL(connectionString);
+                using (var dbContext = new NotesDbContext(optionsBuilder.Options))
+                {
+                    if (dbContext.LoadNotes(out var notes))
+                    {
+                        NotesListDG.ItemsSource = notes;
+                    } 
+                }
+            }
         }
     }
 }
