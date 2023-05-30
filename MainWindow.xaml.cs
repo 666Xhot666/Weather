@@ -34,5 +34,13 @@ namespace Weather
                 }
             }
         }
+        public void EditNote_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        public void AddNote_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
