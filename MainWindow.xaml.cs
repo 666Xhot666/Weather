@@ -67,6 +67,7 @@ namespace Weather
             // Перевіряємо, чи вибрано запис
             if (selectedNote != null)
             {
+
                 noteGroupBox.Tag = selectedNote.Id;
                 // Встановлюємо значення полів у GroupBox з вибраного запису
                 dayInputBox.Text = selectedNote.day.ToString();
@@ -81,11 +82,20 @@ namespace Weather
         }
         public void AddNote_Click(object sender, RoutedEventArgs e)
         {
-
+            // Очистити поля форми GroupBox
+            noteGroupBox.Tag = string.Empty;
+            dayInputBox.Text = string.Empty;
+            dayInputBox.IsReadOnly = false;
+            monthInputBox.Text = string.Empty;
+            monthInputBox.IsReadOnly = false;
+            temperatureInputBox.Text = string.Empty;
+            pressureInputBox.Text = string.Empty;
+            precipitationInputBox.IsChecked = false;
         }
         public void SaveSata_Click(object sender, RoutedEventArgs e)
         {
             // Отримуємо значення з полів у GroupBox
+            int noteId;
             int day;
             int month;
             double temperature;
@@ -118,9 +128,6 @@ namespace Weather
 
             precipitation = precipitationInputBox.IsChecked ?? false;
 
-            // Отримуємо ID вибраного запису
-            int noteId = (int)noteGroupBox.Tag;
-
             string? connectionString = AppConfiguration.Configuration.GetConnectionString("MySqlConnection");
             // Configure the DBContext with the connection string
             var optionsBuilder = new DbContextOptionsBuilder<NotesDbContext>();
@@ -129,36 +136,75 @@ namespace Weather
                 optionsBuilder.UseMySQL(connectionString);
                 using (var dbContext = new NotesDbContext(optionsBuilder.Options))
                 {
-                    // Знайдемо запис за його ID
-                    var note = dbContext.Notes.FirstOrDefault(n => n.Id == noteId);
-                    if (note != null)
+
+                    //int noteId = (int)noteGroupBox.Tag;
+                    if (int.TryParse(noteGroupBox.Tag.ToString(), out noteId))
                     {
-                        // Оновимо значення полів запису
-                        note.day = day;
-                        note.month_id = month;
-                        note.air_temperature = temperature;
-                        note.pressure = pressure;
-                        note.presence_of_precipitation = precipitation;
+                        // Знайдемо запис за його ID
+                        var note = dbContext.Notes.FirstOrDefault(n => n.Id == noteId);
+                        if (note != null)
+                        {
+                            // Оновимо значення полів запису
+                            note.day = day;
+                            note.month_id = month;
+                            note.air_temperature = temperature;
+                            note.pressure = pressure;
+                            note.presence_of_precipitation = precipitation;
 
-                        // Збережемо зміни в базі даних
-                        dbContext.SaveChanges();
+                            // Збережемо зміни в базі даних
+                            dbContext.SaveChanges();
 
-                        // Оновимо відображення DataGrid
-                        RefreshDataGrid();
+                            // Оновимо відображення DataGrid
+                            RefreshDataGrid();
+                            noteGroupBox.Tag = string.Empty;
+                            dayInputBox.Text = string.Empty;
+                            monthInputBox.Text = string.Empty;
+                            temperatureInputBox.Text = string.Empty;
+                            pressureInputBox.Text = string.Empty;
+                            precipitationInputBox.IsChecked = false;
 
-                        // Очистимо форму
-                        dayInputBox.Text = string.Empty;
-                        monthInputBox.Text = string.Empty;
-                        temperatureInputBox.Text = string.Empty;
-                        pressureInputBox.Text = string.Empty;
-                        precipitationInputBox.IsChecked = false;
-
-                        MessageBox.Show("Запис успішно оновлено.", "Повідомлення", MessageBoxButton.OK, MessageBoxImage.Information);
+                            MessageBox.Show("Запис успішно оновлено.", "Повідомлення", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Запис не знайдено:", "Помилка оновлення запису", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
                     }
                     else
                     {
-                        MessageBox.Show("Не вдалося знайти вибраний запис.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (dbContext.Notes.FirstOrDefault(n => n.day == day && n.month_id == month) == null) {
+                            Notes note = new Notes
+                            {
+                                day = day,
+                                month_id = month,
+                                air_temperature = temperature,
+                                pressure = pressure,
+                                presence_of_precipitation = precipitation
+                            };
+                            if (dbContext.AddNote(note))
+                            {
+                                dbContext.SaveChanges();
+                                RefreshDataGrid();
+                                noteGroupBox.Tag = string.Empty;
+                                dayInputBox.Text = string.Empty;
+                                monthInputBox.Text = string.Empty;
+                                temperatureInputBox.Text = string.Empty;
+                                pressureInputBox.Text = string.Empty;
+                                precipitationInputBox.IsChecked = false;
+                                MessageBox.Show("Запис успішно Додано.", "Повідомлення", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Запис не можливо додати:", "Помилка додавання запису", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Запис вже існує:", "Помилка додавання запису", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                        
                     }
+                    
                 }
             }
         }
