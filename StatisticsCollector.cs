@@ -15,8 +15,7 @@ namespace Weather
         }
         public double CalculateAverageMonthlyTemperature(int month_id)
         {
-            List<Notes> notes;
-            if (dbContext.LoadNotes(out notes))
+            if (dbContext.LoadNotes(out List<Notes> notes))
             {
                 var temperatures = notes.Where(n => n.month_id == month_id).Select(n => n.air_temperature);
                 if (temperatures.Any())
@@ -29,8 +28,7 @@ namespace Weather
 
         public double CalculateAverageMonthlyPressure(int month_id)
         {
-            List<Notes> notes;
-            if (dbContext.LoadNotes(out notes))
+            if (dbContext.LoadNotes(out List<Notes> notes))
             {
                 var pressures = notes.Where(n => n.month_id == month_id).Select(n => n.pressure);
                 if (pressures.Any())

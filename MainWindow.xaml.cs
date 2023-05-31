@@ -101,7 +101,6 @@ namespace Weather
             double temperature;
             double pressure;
             bool precipitation;
-
             if (!int.TryParse(dayInputBox.Text, out day) || day < 1 || day > 31)
             {
                 MessageBox.Show("Введіть коректний день.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -208,5 +207,7 @@ namespace Weather
                 }
             }
         }
+        public void ReportCalculation_Click(object sender, RoutedEventArgs e) { }
+        public void ReportSave_Click(object sender, RoutedEventArgs e) { }
     }
 }
