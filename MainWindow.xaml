@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Weather"
         mc:Ignorable="d"
-        Title="Weather" Height="450" Width="800">
+        Title="Weather" Height="500" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -23,7 +23,7 @@
                 </Menu.RenderTransform>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="FileMenuItem" Header="Файл" FontWeight="Bold" DropDownHeight="60">
                     <MenuItem AutomationProperties.Name="LoadDataMenuItem" Header="Завантажити"/>
-                    <MenuItem AutomationProperties.Name="SaveDataMenuItem" Header="Зберегти" Click="SaveSata_Click"/>
+                    <MenuItem AutomationProperties.Name="SaveDataMenuItem" Header="Зберегти" Click="SaveData_Click"/>
                 </RibbonApplicationSplitMenuItem>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="NoteMenuItem" Header="Запис" DropDownHeight="60" FontWeight="Bold">
                     <MenuItem AutomationProperties.Name="EditDataMenuItem" Header="Редагувати" Click="EditNote_Click"/>
@@ -190,12 +190,52 @@
                             </TextBlock>
                         </Grid>
                         <CheckBox x:Name="precipitationInputBox" HorizontalAlignment="Center" Content="Наявність опадів" Margin="10"/>
-                        <Button Content="Зберегти" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="SaveSata_Click">
+                        <Button Content="Зберегти" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="SaveData_Click">
                                 <Button.Effect>
                                     <DropShadowEffect/>
                                 </Button.Effect>
                             </Button>
                     </StackPanel>
+                </GroupBox>
+                <GroupBox x:Name="ReportBox" Header="Генерація Звіту" Margin="5,0,10,5" Width="350" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Row="1" BorderBrush="Black">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Margin="5,5,5,5" Width="Auto">
+                            <TextBox x:Name="monthReportInputBox" Width="120" Margin="10" HorizontalContentAlignment="Center"/>
+                            <TextBlock Text="День" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text.Length, ElementName=monthReportInputBox}" Value="2">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text.Length, ElementName=monthReportInputBox}" Value="1">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsFocused, ElementName=monthReportInputBox}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        <Grid Grid.Row="1" Margin="5,5,5,5">
+                            <Button Content="Визначити" HorizontalAlignment="Left" Margin="40,5,0,10" VerticalAlignment="Center"  Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="ReportCalculation_Click">
+                                <Button.Effect>
+                                    <DropShadowEffect/>
+                                </Button.Effect>
+                            </Button>
+                            <Button Content="Зберегти" HorizontalAlignment="Right" Margin="0,0,40,0" VerticalAlignment="Center" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="ReportSave_Click">
+                                <Button.Effect>
+                                    <DropShadowEffect/>
+                                </Button.Effect>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </GroupBox>
             </Grid>
         </Grid>

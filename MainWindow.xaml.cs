@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Documents;
 using Weather.Data;
 
 namespace Weather
@@ -13,38 +14,53 @@ namespace Weather
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MonthStatistic? statistic;
+        private readonly string? connectionString;
+        private readonly DbContextOptions<NotesDbContext> options;
+
         public MainWindow()
         {
-            InitializeComponent();
+            try
+            {
+                this.statistic = new MonthStatistic();
+                this.connectionString = AppConfiguration.Configuration.GetConnectionString("MySqlConnection");
+                if (this.connectionString == null)
+                {
+                    throw new System.Exception("Empty connection String");
+                }
+                this.options = new DbContextOptionsBuilder<NotesDbContext>().UseMySQL(connectionString).Options;
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                // Display error message and offer to load a file
+                MessageBox.Show($"Не вдалося підключитися до бази даних.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка підключення", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Terminate the program
+                Application.Current.Shutdown();
+            }
         }
         private void NotesListDG_Loaded(object sender, RoutedEventArgs e)
         {
-            string? connectionString = AppConfiguration.Configuration.GetConnectionString("MySqlConnection");
-            // Configure the DBContext with the connection string
-            var optionsBuilder = new DbContextOptionsBuilder<NotesDbContext>();
-            if (connectionString != null)
+            try
             {
-                // Load the formatted notes from the database
-                optionsBuilder.UseMySQL(connectionString);
-                using (var dbContext = new NotesDbContext(optionsBuilder.Options))
+                using (var dbContext = new NotesDbContext(options))
                 {
                     if (dbContext.LoadNotes(out var notes))
                     {
                         NotesListDG.ItemsSource = notes;
-                    } 
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void RefreshDataGrid()
         {
-            string? connectionString = AppConfiguration.Configuration.GetConnectionString("MySqlConnection");
-            // Configure the DBContext with the connection string
-            var optionsBuilder = new DbContextOptionsBuilder<NotesDbContext>();
-            if (connectionString != null)
+            try
             {
-                // Load the notes from the database
-                optionsBuilder.UseMySQL(connectionString);
-                using (var dbContext = new NotesDbContext(optionsBuilder.Options))
+                using (var dbContext = new NotesDbContext(options))
                 {
                     if (dbContext.LoadNotes(out var notes))
                     {
@@ -53,88 +69,102 @@ namespace Weather
                 }
                 NotesListDG.Items.Refresh();
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         public void EditNote_Click(object sender, RoutedEventArgs e)
         {
-            if (NotesListDG.SelectedItem == null)
+            try
             {
-                MessageBox.Show("Будь ласка, оберіть запис.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
+                if (NotesListDG.SelectedItem == null)
+                {
+                    MessageBox.Show("Будь ласка, оберіть запис.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                // Отримуємо вибраний запис з DataGrid
+                var selectedNote = NotesListDG.SelectedItem as Notes;
+
+                // Перевіряємо, чи вибрано запис
+                if (selectedNote != null)
+                {
+
+                    noteGroupBox.Tag = selectedNote.Id;
+                    // Встановлюємо значення полів у GroupBox з вибраного запису
+                    dayInputBox.Text = selectedNote.day.ToString();
+                    dayInputBox.IsReadOnly = true;
+                    monthInputBox.Text = selectedNote.month_id.ToString();
+                    monthInputBox.IsReadOnly = true;
+                    temperatureInputBox.Text = selectedNote.air_temperature.ToString();
+                    pressureInputBox.Text = selectedNote.pressure.ToString();
+                    // Для CheckBox залежно від значення selectedNote.presence_of_precipitation встановлюємо його стан
+                    precipitationInputBox.IsChecked = selectedNote.presence_of_precipitation;
+                }
             }
-            // Отримуємо вибраний запис з DataGrid
-            var selectedNote = NotesListDG.SelectedItem as Notes;
-
-            // Перевіряємо, чи вибрано запис
-            if (selectedNote != null)
+            catch (Exception ex)
             {
-
-                noteGroupBox.Tag = selectedNote.Id;
-                // Встановлюємо значення полів у GroupBox з вибраного запису
-                dayInputBox.Text = selectedNote.day.ToString();
-                dayInputBox.IsReadOnly = true;
-                monthInputBox.Text = selectedNote.month_id.ToString();
-                monthInputBox.IsReadOnly = true;
-                temperatureInputBox.Text = selectedNote.air_temperature.ToString();
-                pressureInputBox.Text = selectedNote.pressure.ToString();
-                // Для CheckBox залежно від значення selectedNote.presence_of_precipitation встановлюємо його стан
-                precipitationInputBox.IsChecked = selectedNote.presence_of_precipitation;
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         public void AddNote_Click(object sender, RoutedEventArgs e)
         {
-            // Очистити поля форми GroupBox
-            noteGroupBox.Tag = string.Empty;
-            dayInputBox.Text = string.Empty;
-            dayInputBox.IsReadOnly = false;
-            monthInputBox.Text = string.Empty;
-            monthInputBox.IsReadOnly = false;
-            temperatureInputBox.Text = string.Empty;
-            pressureInputBox.Text = string.Empty;
-            precipitationInputBox.IsChecked = false;
+            try
+            {
+                // Очистити поля форми GroupBox
+                noteGroupBox.Tag = string.Empty;
+                dayInputBox.Text = string.Empty;
+                dayInputBox.IsReadOnly = false;
+                monthInputBox.Text = string.Empty;
+                monthInputBox.IsReadOnly = false;
+                temperatureInputBox.Text = string.Empty;
+                pressureInputBox.Text = string.Empty;
+                precipitationInputBox.IsChecked = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
-        public void SaveSata_Click(object sender, RoutedEventArgs e)
+        public void SaveData_Click(object sender, RoutedEventArgs e)
         {
-            // Отримуємо значення з полів у GroupBox
-            int noteId;
-            int day;
-            int month;
-            double temperature;
-            double pressure;
-            bool precipitation;
-
-            if (!int.TryParse(dayInputBox.Text, out day) || day < 1 || day > 31)
+            try
             {
-                MessageBox.Show("Введіть коректний день.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                // Отримуємо значення з полів у GroupBox
+                int noteId;
+                int day;
+                int month;
+                double temperature;
+                double pressure;
+                bool precipitation;
+                if (!int.TryParse(dayInputBox.Text, out day) || day < 1 || day > 31)
+                {
+                    MessageBox.Show("Введіть коректний день.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            if (!int.TryParse(monthInputBox.Text, out month) || month < 1 || month > 12)
-            {
-                MessageBox.Show("Введіть коректний місяць.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                if (!int.TryParse(monthInputBox.Text, out month) || month < 1 || month > 12)
+                {
+                    MessageBox.Show("Введіть коректний місяць.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            if (!double.TryParse(temperatureInputBox.Text, out temperature))
-            {
-                MessageBox.Show("Введіть коректну температуру.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                if (!double.TryParse(temperatureInputBox.Text, out temperature))
+                {
+                    MessageBox.Show("Введіть коректну температуру.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            if (!double.TryParse(pressureInputBox.Text, out pressure))
-            {
-                MessageBox.Show("Введіть коректний тиск.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                if (!double.TryParse(pressureInputBox.Text, out pressure))
+                {
+                    MessageBox.Show("Введіть коректний тиск.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            precipitation = precipitationInputBox.IsChecked ?? false;
+                precipitation = precipitationInputBox.IsChecked ?? false;
 
-            string? connectionString = AppConfiguration.Configuration.GetConnectionString("MySqlConnection");
-            // Configure the DBContext with the connection string
-            var optionsBuilder = new DbContextOptionsBuilder<NotesDbContext>();
-            if (connectionString != null)
-            {
-                optionsBuilder.UseMySQL(connectionString);
-                using (var dbContext = new NotesDbContext(optionsBuilder.Options))
+                // Configure the DBContext with the connection string
+                using (var dbContext = new NotesDbContext(options))
                 {
 
                     //int noteId = (int)noteGroupBox.Tag;
@@ -158,7 +188,9 @@ namespace Weather
                             RefreshDataGrid();
                             noteGroupBox.Tag = string.Empty;
                             dayInputBox.Text = string.Empty;
+                            dayInputBox.IsReadOnly = false;
                             monthInputBox.Text = string.Empty;
+                            monthInputBox.IsReadOnly = false;
                             temperatureInputBox.Text = string.Empty;
                             pressureInputBox.Text = string.Empty;
                             precipitationInputBox.IsChecked = false;
@@ -172,7 +204,8 @@ namespace Weather
                     }
                     else
                     {
-                        if (dbContext.Notes.FirstOrDefault(n => n.day == day && n.month_id == month) == null) {
+                        if (dbContext.Notes.FirstOrDefault(n => n.day == day && n.month_id == month) == null)
+                        {
                             Notes note = new Notes
                             {
                                 day = day,
@@ -202,10 +235,45 @@ namespace Weather
                         {
                             MessageBox.Show("Запис вже існує:", "Помилка додавання запису", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
-                        
+
                     }
-                    
+
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public void ReportCalculation_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!int.TryParse(monthReportInputBox.Text, out int month_id) | month_id>12 | month_id<1)
+                {
+                    MessageBox.Show("Введіть коректний місяць.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                StatisticsCollector statisticsCollector = new StatisticsCollector(connectionString);
+                this.statistic.TemperatureMean = statisticsCollector.CalculateAverageMonthlyTemperature(month_id);
+                this.statistic.PressureMean = statisticsCollector.CalculateAverageMonthlyPressure(month_id);
+                statisticsCollector.GetDatesWithNegativeTemperatureAndPrecipitation(out List<string> dates);
+                this.statistic.Dates = dates;
+                MessageBox.Show("Статистика успішно зібрана.","Повідомлення",MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public void ReportSave_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка програми.{Environment.NewLine}{ex.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
