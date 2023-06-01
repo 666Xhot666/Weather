@@ -30,6 +30,7 @@ namespace Weather
                 }
                 this.options = new DbContextOptionsBuilder<NotesDbContext>().UseMySQL(connectionString).Options;
                 InitializeComponent();
+                noteGroupBox.Tag = "";
             }
             catch (Exception ex)
             {
@@ -260,6 +261,8 @@ namespace Weather
                 statisticsCollector.GetDatesWithNegativeTemperatureAndPrecipitation(out List<string> dates);
                 this.statistic.Dates = dates;
                 MessageBox.Show("Статистика успішно зібрана.","Повідомлення",MessageBoxButton.OK, MessageBoxImage.Information);
+                SaveReportButton.IsEnabled = true;
+                SaveReportMenuItem.IsEnabled = true;
             }
             catch (Exception ex)
             {
@@ -270,6 +273,18 @@ namespace Weather
         {
             try
             {
+                WordExporter wordExporter = new WordExporter();
+                if (statistic != null)
+                {
+                    if (wordExporter.Export(statistic, out string ReportPath, out Exception? error))
+                    {
+                        MessageBox.Show($"Звіт створено за посиланням: {ReportPath}.", "Повідомлення", MessageBoxButton.OK, MessageBoxImage.Information);
+                    } 
+                    else
+                    {
+                        MessageBox.Show($"Помилка збереження звіту.{Environment.NewLine}{error.Message}{Environment.NewLine}", "Помилка програми", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
             catch (Exception ex)
             {
