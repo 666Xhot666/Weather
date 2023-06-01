@@ -20,7 +20,7 @@ namespace Weather
                 var temperatures = notes.Where(n => n.month_id == month_id).Select(n => n.air_temperature);
                 if (temperatures.Any())
                 {
-                    return temperatures.Average();
+                    return Math.Round(temperatures.Average(),4);
                 }
             }
             return 0;
@@ -33,7 +33,7 @@ namespace Weather
                 var pressures = notes.Where(n => n.month_id == month_id).Select(n => n.pressure);
                 if (pressures.Any())
                 {
-                    return pressures.Average();
+                    return Math.Round(pressures.Average(),4);
                 }
             }
             return 0;

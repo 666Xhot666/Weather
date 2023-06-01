@@ -13,6 +13,7 @@ namespace Weather
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            AppConfiguration.Configuration["CurrentDirectory"] = Environment.CurrentDirectory.ToString(); ;
             base.OnStartup(e);
             try
             {

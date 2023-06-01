@@ -22,16 +22,16 @@
                     </TransformGroup>
                 </Menu.RenderTransform>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="FileMenuItem" Header="Файл" FontWeight="Bold" DropDownHeight="60">
-                    <MenuItem AutomationProperties.Name="LoadDataMenuItem" Header="Завантажити"/>
-                    <MenuItem AutomationProperties.Name="SaveDataMenuItem" Header="Зберегти" Click="SaveData_Click"/>
+                    <MenuItem x:Name="LoadDataMenuItem" Header="Завантажити"/>
+                    <MenuItem x:Name="SaveDataMenuItem" Header="Зберегти" Click="SaveData_Click"/>
                 </RibbonApplicationSplitMenuItem>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="NoteMenuItem" Header="Запис" DropDownHeight="60" FontWeight="Bold">
-                    <MenuItem AutomationProperties.Name="EditDataMenuItem" Header="Редагувати" Click="EditNote_Click"/>
-                    <MenuItem AutomationProperties.Name="AddDataMenuItem" Header="Додати" Click="AddNote_Click"/>
+                    <MenuItem x:Name="EditDataMenuItem" Header="Редагувати" Click="EditNote_Click"/>
+                    <MenuItem x:Name="AddDataMenuItem" Header="Додати" Click="AddNote_Click"/>
                 </RibbonApplicationSplitMenuItem>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="GenerateReportMenuItem" Header="Звіт" DropDownHeight="60" FontWeight="Bold">
-                    <MenuItem AutomationProperties.Name="CoomputeDataMenuItem" Header="Визначити"/>
-                    <MenuItem AutomationProperties.Name="SaveReportMenuItem" Header="Зберегти"/>
+                    <MenuItem x:Name="CoomputeDataMenuItem" Header="Визначити" Click="ReportCalculation_Click"/>
+                    <MenuItem x:Name="SaveReportMenuItem" Header="Зберегти" Click="ReportSave_Click" IsEnabled="False"/>
                 </RibbonApplicationSplitMenuItem>
             </Menu>
         </DockPanel>
@@ -205,7 +205,7 @@
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="5,5,5,5" Width="Auto">
                             <TextBox x:Name="monthReportInputBox" Width="120" Margin="10" HorizontalContentAlignment="Center"/>
-                            <TextBlock Text="День" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0">
+                            <TextBlock Text="Місяць" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
@@ -229,7 +229,7 @@
                                     <DropShadowEffect/>
                                 </Button.Effect>
                             </Button>
-                            <Button Content="Зберегти" HorizontalAlignment="Right" Margin="0,0,40,0" VerticalAlignment="Center" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="ReportSave_Click">
+                            <Button Content="Зберегти" x:Name="SaveReportButton" HorizontalAlignment="Right" Margin="0,0,40,0" VerticalAlignment="Center" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="ReportSave_Click" IsEnabled="False" >
                                 <Button.Effect>
                                     <DropShadowEffect/>
                                 </Button.Effect>
