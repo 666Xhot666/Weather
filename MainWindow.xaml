@@ -23,7 +23,7 @@
                 </Menu.RenderTransform>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="FileMenuItem" Header="Файл" FontWeight="Bold" DropDownHeight="60">
                     <MenuItem AutomationProperties.Name="LoadDataMenuItem" Header="Завантажити"/>
-                    <MenuItem AutomationProperties.Name="SaveDataMenuItem" Header="Зберегти" Click="SaveSata_Click"/>
+                    <MenuItem AutomationProperties.Name="SaveDataMenuItem" Header="Зберегти" Click="SaveData_Click"/>
                 </RibbonApplicationSplitMenuItem>
                 <RibbonApplicationSplitMenuItem AutomationProperties.Name="NoteMenuItem" Header="Запис" DropDownHeight="60" FontWeight="Bold">
                     <MenuItem AutomationProperties.Name="EditDataMenuItem" Header="Редагувати" Click="EditNote_Click"/>
@@ -190,7 +190,7 @@
                             </TextBlock>
                         </Grid>
                         <CheckBox x:Name="precipitationInputBox" HorizontalAlignment="Center" Content="Наявність опадів" Margin="10"/>
-                        <Button Content="Зберегти" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="SaveSata_Click">
+                        <Button Content="Зберегти" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" Height="40" Background="Aqua" ClickMode="Release" Click="SaveData_Click">
                                 <Button.Effect>
                                     <DropShadowEffect/>
                                 </Button.Effect>
